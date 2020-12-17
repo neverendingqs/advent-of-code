@@ -55,7 +55,48 @@ async function p1() {
 }
 
 async function p2() {
+  // alt: something something all leaves of an acyclic graph
   const input = await getInput();
+  const outToInside = input
+    .reduce(
+      (acc, rule) => {
+        const [, inside, outStrs] = rule.match(/^(.*) bags contain (.*).$/);
+        if(outStrs === 'no other bags') {
+          return acc;
+        }
+
+        acc[inside] = outStrs
+          .split(',')
+          .reduce(
+            (acc, outStr) => {
+              const matches = outStr
+                .trim()
+                .match(/^(\d) (.*) bag[s]?$/);
+
+              const [, amount, inside] = matches;
+              acc[inside] = parseInt(amount);
+              return acc;
+            },
+            {}
+          );
+
+        return acc;
+      },
+      {}
+    );
+
+    function getNumInsideBags(bag) {
+      let numInsideBags = 0;
+      Object
+        .entries(outToInside[bag] ?? {})
+        .forEach(([insideBag, numInsideBag]) => {
+          numInsideBags += numInsideBag * getNumInsideBags(insideBag) + numInsideBag;
+        });
+
+      return numInsideBags;
+    }
+
+    return getNumInsideBags('shiny gold');
 }
 
 module.exports = async () => {
@@ -65,6 +106,6 @@ module.exports = async () => {
 
   /*
    * p1: 337
-   * p2:
+   * p2: 50100
    */
 };
