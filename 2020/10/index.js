@@ -8,22 +8,50 @@ async function getInput() {
     .map(i => parseInt(i));
 }
 
-async function p1() {
+async function getAdapters() {
   const input = await getInput();
-  const adapters = input.sort((a, b) => a - b);
+  return [
+    0,
+    ...input.sort((a, b) => a - b),
+    Math.max(...input) + 3
+  ];
+}
 
+async function p1() {
+  const adapters = await getAdapters();
   const joltDiffCounter = {};
-  joltDiffCounter[adapters[0]] = 1;
-
   for(let i = 1; i < adapters.length; i++) {
     const joltDiff = adapters[i] - adapters[i - 1];
     joltDiffCounter[joltDiff] = (joltDiffCounter[joltDiff] ?? 0) + 1;
   }
 
-  return joltDiffCounter[1] * (joltDiffCounter[3] + 1);
+  return joltDiffCounter[1] * joltDiffCounter[3];
 }
 
+/*
+ * I thought Dynamic Programming would work here, but ended up reading
+ * https://www.reddit.com/r/adventofcode/comments/ka8z8x/2020_day_10_solutions/gfzp6rt/
+ * to iron out the details.
+ */
 async function p2() {
+  const adapters = await getAdapters();
+
+  const numPathsDp = [1, 1];
+  for(let i = 2; i < adapters.length; i++) {
+    let numPaths = numPathsDp[i - 1];
+
+    if(adapters[i] - adapters[i - 2] <= 3) {
+      numPaths += numPathsDp[i - 2];
+    }
+
+    if(adapters[i] - adapters[i - 3] <= 3) {
+      numPaths += numPathsDp[i - 3];
+    }
+
+    numPathsDp.push(numPaths);
+  }
+
+  return numPathsDp[numPathsDp.length - 1];
 }
 
 module.exports = async () => {
@@ -33,6 +61,6 @@ module.exports = async () => {
 
   /*
    * p1: 2240
-   * p2:
+   * p2: 99214346656768
    */
 };
