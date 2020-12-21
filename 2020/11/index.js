@@ -41,6 +41,105 @@ function p1NumAdjOccupiedSeats(input, row, column) {
 
   return numAdjOccupied;
 }
+function p2NumAdjOccupiedSeats(input, row, column) {
+  /*
+   * x x x      0 1 2
+   * x x x  =>  3 4 5
+   * x x x      6 7 8
+   */
+  const adj = {
+    0: { row: row - 1, column: column - 1 },
+    1: { row: row - 1, column },
+    2: { row: row - 1, column: column + 1 },
+    3: { row: row, column: column - 1 },
+    5: { row: row, column: column + 1 },
+    6: { row: row + 1, column: column - 1 },
+    7: { row: row + 1, column: column },
+    8: { row: row + 1, column: column + 1 },
+  };
+
+  const maxRows = input.length;
+  const maxColumns = input[0].length;
+  let numAdjOccupied = 0;
+
+  function shouldContinue(key) {
+    if(!adj[key]) {
+      return false;
+    }
+
+    const { row, column } = adj[key];
+
+    if(row < 0 || column < 0 || row === maxRows || column === maxColumns ) {
+      delete adj[key];
+      return false;
+    }
+
+    if(input[row][column] === '.') {
+      return true;
+    }
+
+    if(input[row][column] === '#') {
+      numAdjOccupied += 1;
+      delete adj[key];
+      return false;
+    }
+
+    delete adj[key];
+    return false;
+  }
+
+  while(Object.keys(adj).length > 0) {
+    let key = 0;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row - 1, column: column - 1 };
+    }
+
+    key = 1;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row - 1, column };
+    }
+
+    key = 2;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row - 1, column: column + 1 };
+    }
+
+    key = 3;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row, column: column - 1 };
+    }
+
+    key = 5;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row, column: column + 1 };
+    }
+
+    key = 6;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row + 1, column: column - 1 };
+    }
+
+    key = 7;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row + 1, column };
+    }
+
+    key = 8;
+    if(shouldContinue(key)) {
+      const { row, column } = adj[key];
+      adj[key] = { row: row + 1, column: column + 1 };
+    }
+  }
+
+  return numAdjOccupied;
+}
 
 function runIteration(input) {
   // Deep clone one level deep
@@ -104,6 +203,12 @@ async function p1() {
 }
 
 async function p2() {
+  return solve(
+    runIteration.bind({
+      emptyThreshold: 5,
+      numAdjOccupiedSeats: p2NumAdjOccupiedSeats
+    })
+  );
 }
 
 module.exports = async () => {
@@ -113,6 +218,6 @@ module.exports = async () => {
 
   /*
    * p1: 2265
-   * p2:
+   * p2: 2045
    */
 };
