@@ -57,6 +57,69 @@ async function p1() {
 }
 
 async function p2() {
+  const input = await getInput();
+
+  const travelled = DIRECTIONS.reduce(
+    (acc, direction) => Object.assign(acc, { [direction]: 0 }),
+    {}
+  );
+  let waypoint = { 'E': 10, 'N': 1, 'S': 0, 'W': 0 };
+
+  for(const { action, value } of input) {
+    switch(action) {
+      case 'E':
+      case 'N':
+      case 'S':
+      case 'W':
+        waypoint[action] += value;
+        break;
+
+      case 'F':
+        Object
+          .entries(waypoint)
+          .forEach(([wpAction, wpValue]) => {
+            travelled[wpAction] += wpValue * value;
+          });
+        break;
+
+      case 'L':
+        waypoint = Object
+          .entries(waypoint)
+          .reduce(
+            (acc, [wpAction, wpValue]) => {
+              const iDirection = DIRECTIONS.indexOf(wpAction);
+              let newIDirection = iDirection - (value / 90);
+              newIDirection = newIDirection < 0
+                ? newIDirection + 4
+                : newIDirection;
+
+              return Object.assign(acc, { [DIRECTIONS[newIDirection]]: wpValue });
+            },
+            {}
+          );
+        break;
+
+      case 'R':
+        waypoint = Object
+          .entries(waypoint)
+          .reduce(
+            (acc, [wpAction, wpValue]) => {
+              const iDirection = DIRECTIONS.indexOf(wpAction);
+              const newIDirection = (iDirection + (value / 90)) % 4;
+
+              return Object.assign(acc, { [DIRECTIONS[newIDirection]]: wpValue });
+            },
+            {}
+          );
+        break;
+
+      default:
+        throw new Error('Should not have reached here.');
+    }
+  }
+
+  return Math.abs(travelled['E'] - travelled['W'])
+    + Math.abs(travelled['N'] - travelled['S']);
 }
 
 module.exports = async () => {
@@ -65,7 +128,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
-   * p2:
+   * p1: 796
+   * p2: 39446
    */
 };
