@@ -8,7 +8,7 @@ async function getInput() {
     .map(row => row.split(''));
 }
 
-function numAdjOccupiedSeats(input, row, column) {
+function p1NumAdjOccupiedSeats(input, row, column) {
   const rows = [row];
   if(row - 1 >= 0) {
     rows.push(row - 1);
@@ -50,13 +50,13 @@ function runIteration(input) {
     for(let column = 0; column < input[row].length; column++) {
       switch(input[row][column]) {
         case 'L':
-          if(numAdjOccupiedSeats(input, row, column) === 0) {
+          if(this.numAdjOccupiedSeats(input, row, column) === 0) {
             newIteration[row][column] = '#';
           }
           break;
 
         case '#':
-          if(numAdjOccupiedSeats(input, row, column) >= 4) {
+          if(this.numAdjOccupiedSeats(input, row, column) >= this.emptyThreshold) {
             newIteration[row][column] = 'L';
           }
           break;
@@ -74,7 +74,7 @@ function checksum(input) {
     .join('');
 }
 
-async function p1() {
+async function solve(runIteration) {
   let input = await getInput();
   let currChecksum = checksum(input);
 
@@ -92,6 +92,15 @@ async function p1() {
     .split('')
     .filter(position => position === '#')
     .length;
+}
+
+async function p1() {
+  return solve(
+    runIteration.bind({
+      emptyThreshold: 4,
+      numAdjOccupiedSeats: p1NumAdjOccupiedSeats
+    })
+  );
 }
 
 async function p2() {
