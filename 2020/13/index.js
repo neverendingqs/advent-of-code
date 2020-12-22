@@ -1,4 +1,5 @@
 const { promises: fs } = require('fs');
+const { exit } = require('process');
 
 const DIRECTIONS = ['E', 'S', 'W', 'N'];
 
@@ -32,7 +33,28 @@ async function p1() {
 }
 
 async function p2() {
-  const input = await getInput();
+  let { buses } = await getInput();
+  buses = buses.map(bus =>
+    bus === 'x'
+      ? 1
+      : parseInt(bus)
+  );
+
+  const period = BigInt(Math.max(...buses));
+  buses = buses.map(bus => BigInt(bus));
+  const iPeriod = BigInt(buses.indexOf(period));
+
+  for(let timestamp = period; ; timestamp += period) {
+    const earliestTimestamp = timestamp - iPeriod;
+    const isGoldCoin = buses.every((bus, i) => (timestamp - iPeriod + BigInt(i)) % bus === 0n);
+    if(isGoldCoin) {
+      return earliestTimestamp;
+    }
+
+    if(timestamp % (period * 1000000n) === 0n) {
+      console.log({ timestamp, earliestTimestamp, isGoldCoin, isGoldCoinArray: buses.map((bus, i) => (timestamp - iPeriod + BigInt(i)) % bus) });
+    }
+  }
 }
 
 module.exports = async () => {
