@@ -32,29 +32,27 @@ async function p1() {
   return bus * waitTime;
 }
 
+// Brute force took too long
+// Based on https://www.reddit.com/r/adventofcode/comments/kc4njx/2020_day_13_solutions/ggdxufd/
+// Possible alternative: Chinese Remainder Theorem
 async function p2() {
   let { buses } = await getInput();
   buses = buses.map(bus =>
     bus === 'x'
-      ? 1
-      : parseInt(bus)
+      ? 1n
+      : BigInt(bus)
   );
 
-  const period = BigInt(Math.max(...buses));
-  buses = buses.map(bus => BigInt(bus));
-  const iPeriod = BigInt(buses.indexOf(period));
-
-  for(let timestamp = period; ; timestamp += period) {
-    const earliestTimestamp = timestamp - iPeriod;
-    const isGoldCoin = buses.every((bus, i) => (timestamp - iPeriod + BigInt(i)) % bus === 0n);
-    if(isGoldCoin) {
-      return earliestTimestamp;
+  let period = buses[0];
+  let timestamp = 0n;
+  for(let i = 1n; i < buses.length; i++) {
+    while((timestamp + i) % buses[i] !== 0n) {
+      timestamp += period;
     }
-
-    if(timestamp % (period * 1000000n) === 0n) {
-      console.log({ timestamp, earliestTimestamp, isGoldCoin, isGoldCoinArray: buses.map((bus, i) => (timestamp - iPeriod + BigInt(i)) % bus) });
-    }
+    period *= buses[i];
   }
+
+  return timestamp.toString();
 }
 
 module.exports = async () => {
@@ -63,7 +61,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
-   * p2:
+   * p1: 2095
+   * p2: 598411311431841
    */
 };
