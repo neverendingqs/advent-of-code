@@ -4,7 +4,15 @@ async function getInput() {
   return input = (await fs.readFile(`${__dirname}/input.txt`))
     .toString()
     .trim()
-    .split('\n')
+    .split('\n');
+}
+
+/* Had assistance from
+ * https://www.reddit.com/r/adventofcode/comments/kcr1ct/2020_day_14_solutions/gfvh9q4/
+ * to realize that I needed to use BigInt instead of Number
+ */
+async function p1() {
+  const input = (await getInput())
     .map(line => {
       if(line.startsWith('mask')) {
         const mask = line.substring(7);
@@ -34,15 +42,7 @@ async function getInput() {
           value: BigInt(parseInt(value))
         };
       }
-    });
-}
-
-/* Had assistance from
- * https://www.reddit.com/r/adventofcode/comments/kcr1ct/2020_day_14_solutions/gfvh9q4/
- * to realize that I needed to use BigInt instead of Number
- */
-async function p1() {
-  const input = await getInput();
+    });;
 
   let memory = [];
   let currMask;
@@ -58,9 +58,6 @@ async function p1() {
       memory[address] = finalValue;
     }
   }
-
-  console.log(memory
-    .filter(value => !!value))
 
   return memory
     .filter(value => !!value)
