@@ -8,23 +8,22 @@ async function getInput(parseMask) {
     .map(x => parseInt(x));
 }
 
-async function p1() {
-  const input = await getInput();
+async function run(numTurns) {
+  // Used hint to pre-allocate the number of slots in the array from
+  // https://www.reddit.com/r/adventofcode/comments/kdf85p/2020_day_15_solutions/ggqmh0m/
+  const lastSpokenLookup = Array(numTurns);
+
   let lastSpoken = 0;
   let turn = 1;
-  const lastSpokenLookup = input.reduce(
-    (acc, x) => {
-      acc = Object.assign(acc, { [x]: [turn, turn] });
-      lastSpoken = x;
-      turn++;
-      return acc;
-    },
-    {}
-  );
 
-  for(; turn <= 2020; turn++) {
-    //console.log({ lastSpoken, turn, lastSpokenLookup })
+  const input = await getInput();
+  input.forEach(x => {
+    lastSpokenLookup[x] = [turn, turn];
+    lastSpoken = x;
+    turn++;
+  });
 
+  for(; turn <= numTurns; turn++) {
     lastSpoken = !!lastSpokenLookup[lastSpoken]
       ? lastSpokenLookup[lastSpoken][1] - lastSpokenLookup[lastSpoken][0]
       : 0;
@@ -40,8 +39,12 @@ async function p1() {
   return lastSpoken;
 }
 
+async function p1() {
+  return run(2020);
+}
+
 async function p2() {
-  const input = await getInput();
+  return run(30000000);
 }
 
 module.exports = async () => {
