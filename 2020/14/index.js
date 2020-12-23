@@ -1,10 +1,33 @@
 const { promises: fs } = require('fs');
 
-async function getInput() {
+async function getInput(parseMask) {
   return input = (await fs.readFile(`${__dirname}/input.txt`))
     .toString()
     .trim()
-    .split('\n');
+    .split('\n')
+    .map(line => {
+      if(line.startsWith('mask')) {
+        const mask = line.substring(7);
+        return parseMask(mask);
+      } else {
+        const [, address, value] = line.match(/^mem\[(\d+)\] = (\d+)$/);
+        return {
+          address: BigInt(parseInt(address)),
+          value: BigInt(parseInt(value))
+        };
+      }
+    });
+}
+
+function getSumValueInMemory(memory) {
+  return Object
+    .values(memory)
+    .filter(value => !!value)
+    .reduce(
+      (acc, value) => acc + value,
+      0n
+    )
+    .toString();
 }
 
 /* Had assistance from
@@ -12,39 +35,30 @@ async function getInput() {
  * to realize that I needed to use BigInt instead of Number
  */
 async function p1() {
-  const input = (await getInput())
-    .map(line => {
-      if(line.startsWith('mask')) {
-        const mask = line.substring(7);
-
-        let staticBits = [];
-        let wildcardBits = [];
-        for(const bit of mask.split('')) {
-          if(bit === 'X') {
-            wildcardBits.push('1');
-            staticBits.push('0');
-          } else {
-            wildcardBits.push('0');
-            staticBits.push(bit);
-          }
-        }
-
-        return {
-          mask: {
-            staticBits: BigInt(parseInt(staticBits.join(''), 2)),
-            wildcardBits: BigInt(parseInt(wildcardBits.join(''), 2))
-          }
-        };
+  function parseMask(mask) {
+    let staticBits = [];
+    let wildcardBits = [];
+    for(const bit of mask.split('')) {
+      if(bit === 'X') {
+        wildcardBits.push('1');
+        staticBits.push('0');
       } else {
-        const [, address, value] = line.match(/^mem\[(\d+)\] = (\d+)$/);
-        return {
-          address: parseInt(address),
-          value: BigInt(parseInt(value))
-        };
+        wildcardBits.push('0');
+        staticBits.push(bit);
       }
-    });
+    }
 
-  let memory = [];
+    return {
+      mask: {
+        staticBits: BigInt(parseInt(staticBits.join(''), 2)),
+        wildcardBits: BigInt(parseInt(wildcardBits.join(''), 2))
+      }
+    };
+  }
+
+  const input = (await getInput(parseMask));
+
+  let memory = {};
   let currMask;
   for(const instruction of input) {
     const { address, mask, value } = instruction;
@@ -59,17 +73,11 @@ async function p1() {
     }
   }
 
-  return memory
-    .filter(value => !!value)
-    .reduce(
-      (acc, value) => acc + value,
-      0n
-    )
-    .toString();
+  return getSumValueInMemory(memory);
 }
 
 async function p2() {
-  function maskToBitmasks(mask) {
+  function parseMask(mask) {
     const masks = [{ additionalBits: [], allowedBits: [], staticBits: [] }];
 
     for(const bit of mask.split('')) {
@@ -102,36 +110,25 @@ async function p2() {
       }
     }
 
-    return masks.map(({ additionalBits, allowedBits, staticBits }) => ({
-      additionalBits: BigInt(
-        parseInt(additionalBits.join(''), 2)
-      ),
-      allowedBits: BigInt(
-        parseInt(allowedBits.join(''), 2)
-      ),
-      staticBits: BigInt(
-        parseInt(staticBits.join(''), 2)
-      )
-    }));
+    return {
+      masks: masks.map(({ additionalBits, allowedBits, staticBits }) => ({
+        additionalBits: BigInt(
+          parseInt(additionalBits.join(''), 2)
+        ),
+        allowedBits: BigInt(
+          parseInt(allowedBits.join(''), 2)
+        ),
+        staticBits: BigInt(
+          parseInt(staticBits.join(''), 2)
+        )
+      }))
+    };
   }
 
-  const input = (await getInput())
-    .map(line => {
-      if(line.startsWith('mask')) {
-        const mask = line.substring(7);
-        return { masks: maskToBitmasks(mask) };
-      } else {
-        const [, address, value] = line.match(/^mem\[(\d+)\] = (\d+)$/);
-        return {
-          address: BigInt(parseInt(address)),
-          value: BigInt(parseInt(value))
-        };
-      }
-    });
+  const input = (await getInput(parseMask));
 
   let memory = {};
   let currMasks;
-  let i = 0;
   for(const instruction of input) {
     const { address, masks, value } = instruction;
 
@@ -146,14 +143,7 @@ async function p2() {
     }
   }
 
-  return Object
-    .values(memory)
-    .filter(value => !!value)
-    .reduce(
-      (acc, value) => acc + value,
-      0n
-    )
-    .toString();
+  return getSumValueInMemory(memory);
 }
 
 module.exports = async () => {
