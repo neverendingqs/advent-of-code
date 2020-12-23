@@ -9,34 +9,30 @@ async function getInput(parseMask) {
 }
 
 async function run(numTurns) {
-  // Used hint to pre-allocate the number of slots in the array from
-  // https://www.reddit.com/r/adventofcode/comments/kdf85p/2020_day_15_solutions/ggqmh0m/
+  // My initial solution looked very similar to the one linked, but I couldn't transition off of the
+  // starting numbers properly, so I went with the solution in 82647f6b6b0fcc51c79f4de0a5eb752b85446f8b
+  // After seeing https://www.reddit.com/r/adventofcode/comments/kdf85p/2020_day_15_solutions/ggqmh0m/,
+  // this solution was updated to look something very similar
   const lastSpokenLookup = Array(numTurns);
 
-  let lastSpoken = 0;
-  let turn = 1;
+  (await getInput())
+    .slice(0, -1)
+    .forEach((x, i) => lastSpokenLookup[x] = i + 1);
 
-  const input = await getInput();
-  input.forEach(x => {
-    lastSpokenLookup[x] = [turn, turn];
-    lastSpoken = x;
-    turn++;
-  });
-
-  for(; turn <= numTurns; turn++) {
-    lastSpoken = !!lastSpokenLookup[lastSpoken]
-      ? lastSpokenLookup[lastSpoken][1] - lastSpokenLookup[lastSpoken][0]
+  let currentSpoken = input[input.length - 1];
+  for(let turn = input.length; turn < numTurns; turn++) {
+    const lastSpoken = lastSpokenLookup[currentSpoken];
+    lastSpokenLookup[currentSpoken] = turn;
+    currentSpoken = !!lastSpoken
+      ? turn - lastSpoken
       : 0;
-
-    if(lastSpokenLookup[lastSpoken]) {
-      lastSpokenLookup[lastSpoken].shift();
-      lastSpokenLookup[lastSpoken].push(turn);
-    } else {
-      lastSpokenLookup[lastSpoken] = [turn, turn];
-    }
   }
 
-  return lastSpoken;
+  return currentSpoken;
+}
+
+async function p1() {
+  return run(2020);
 }
 
 async function p1() {
