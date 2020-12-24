@@ -120,14 +120,29 @@ async function p2() {
     }
   };
 
-  let numMatched = 0;
-  const indexToName = Array(ticket.length);
-  while(numMatched < rules.length) {
-    // slowly eliminate each rule until all rules are done blah
+  const names = Array(ticket.length);
+  for(let i = 0; i < rules.length; i++) {
+    for(let j = 0; j < matched.length; j++) {
+      const rulesThatMatchedAllNearby = Object
+        .entries(matched[j])
+        .filter(([, numMatched]) => numMatched === ticket.length);
+
+      if(rulesThatMatchedAllNearby.length === 1) {
+        names[j] = rulesThatMatchedAllNearby[0][0];
+        matched.forEach(m => delete m[names[j]]);
+      }
+    }
   }
 
   console.log(matched)
-  //console.log(nameLookup.filter(name => name && name !== 'multiple'));
+  console.log(names)
+
+  return ticket.reduce(
+    (acc, value, i) => names[i].startsWith('departure')
+      ? acc * value
+      : acc,
+    1
+  );
 }
 
 module.exports = async () => {
