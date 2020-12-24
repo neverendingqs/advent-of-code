@@ -54,8 +54,30 @@ async function getInput() {
 }
 
 async function p1() {
-  const input = await getInput();
-  console.log(input);
+  const { nearby, rules } = await getInput();
+  const validValues = rules.reduce(
+    (acc, { leftMin, leftMax, rightMin, rightMax }) => {
+      for(let i = leftMin; i <= leftMax; i++) {
+        acc[i] = true;
+      }
+
+      for(let i = rightMin; i <= rightMax; i++) {
+        acc[i] = true;
+      }
+
+      return acc;
+    },
+    []
+  );
+
+  let invalidValuesSum = 0;
+  for(const value of nearby.flat()) {
+    invalidValuesSum += validValues[value] === true
+      ? 0
+      : value;
+  }
+
+  return invalidValuesSum;
 }
 
 async function p2() {
@@ -67,7 +89,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
+   * p1: 22977
    * p2:
    */
 };
