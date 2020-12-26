@@ -1,9 +1,13 @@
 const { promises: fs } = require('fs');
 
 class NegativeIndexArray {
-  constructor(initial) {
-    this.positive = [...initial];
-    this.negative = [];
+  constructor(positive, negative) {
+    this.positive = positive
+      ? [...positive]
+      : [];
+    this.negative = negative
+      ? [...negative]
+      : [];
 
     // https://stackoverflow.com/a/57634753/2687324
     return new Proxy(this, {
@@ -42,8 +46,18 @@ class NegativeIndexArray {
     return this.negative.length + this.positive.length;
   }
 
+  * [Symbol.iterator]() {
+		for(const value of this.negative.reverse().concat(this.positive)) {
+      yield value;
+    }
+	}
+
   get[Symbol.toStringTag]() {
     return this.toString();
+  }
+
+  clone() {
+    return new NegativeIndexArray(this.positive, this.negative);
   }
 
   toJSON() {
@@ -76,6 +90,8 @@ async function getInput() {
 
 async function p1() {
   const zyx = await getInput();
+  console.log(...zyx)
+  console.log(zyx instanceof NegativeIndexArray)
 }
 
 async function p2() {
