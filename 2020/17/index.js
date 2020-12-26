@@ -86,12 +86,60 @@ async function getInput() {
   return zyx;
 }
 
+function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
+  let numActiveNeighbours = 0;
+  for(let z = zi - 1; z <= zi + 1; z++) {
+    for(let y = yi - 1; y <= yi + 1; y++) {
+      for(let x = xi - 1; x <= xi + 1; x++) {
+        if(z === 0 && y === 0 && x === 0) {
+          continue;
+        }
+
+        numActiveNeighbours += zyx[z][y][x] === '#'
+          ? 1
+          : 0;
+      }
+    }
+  }
+
+  return numActiveNeighbours;
+}
+
 function runCycle(zyx) {
   const newZyx = new NegativeIndexArray(
     new NegativeIndexArray(
       new NegativeIndexArray()
     )
   );
+
+  for(let zi = zyx.minIndex - 1; zi <= zyx.maxIndex + 1; zi++) {
+    const yx = zyx[zi];
+
+    for(let yi = yx.minIndex - 1; yi <= yx.maxIndex + 1; yi++) {
+      const x = yx[yi];
+
+      for(let xi = x.minIndex - 1; xi <= x.maxIndex + 1; xi++) {
+        const cube = zyx[zi][yi][xi];
+        const numActiveNeighbours = getNumActiveNeighbours(zyx, { zi, yi, xi });
+
+        if(cube === '#') {
+          newZyx[zi][yi][xi] = (numActiveNeighbours === 2 || numActiveNeighbours === 3)
+            ? '#'
+            : '.'
+        } else {
+          newZyx[zi][yi][xi] = numActiveNeighbours === 3
+            ? '#'
+            : '.';
+        }
+      }
+    }
+  }
+
+  return newZyx;
+}
+
+function getNumActive(zyx) {
+  let numActive = 0;
 
   for(let zi = zyx.minIndex; zi <= zyx.maxIndex; zi++) {
     const yx = zyx[zi];
@@ -100,16 +148,23 @@ function runCycle(zyx) {
       const x = yx[yi];
 
       for(let xi = x.minIndex; xi <= x.maxIndex; xi++) {
-        newZyx[zi][yi][xi] = zyx[zi][yi][xi];
-        console.log(newZyx[zi][yi][xi]);
+        numActive += zyx[zi][yi][xi] === '#'
+          ? 1
+          : 0;
       }
     }
   }
+
+  return newZyx;
 }
 
 async function p1() {
-  const zyx = await getInput();
-  runCycle(zyx);
+  let zyx = await getInput();
+  for(let iForLoopOnly = 0; iForLoopOnly < 6; iForLoopOnly++) {
+    zyx = runCycle(zyx);
+  }
+
+  return getNumActive(zyx);
 }
 
 async function p2() {
