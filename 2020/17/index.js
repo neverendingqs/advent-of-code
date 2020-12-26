@@ -1,19 +1,21 @@
 const { promises: fs } = require('fs');
 
 class NegativeIndexArray {
-  constructor(positive, negative) {
-    this.positive = positive
-      ? [...positive]
-      : [];
-    this.negative = negative
-      ? [...negative]
-      : [];
+  constructor(initial) {
+    this.positive = [...(initial ?? [])];
+    this.negative = [];
 
     // https://stackoverflow.com/a/57634753/2687324
     return new Proxy(this, {
       get: (obj, key) => {
-        const i = typeof key === 'String' && Number(key);
+        const i = typeof key === 'string' && Number(key);
         if (Number.isInteger(i)) {
+          if(i < 0 && this.negative[Math.abs(i) - 1] === undefined) {
+            this.negative[Math.abs(i) - 1] = new NegativeIndexArray();
+          } else if (i >= 0 && this.positive[i] === undefined) {
+            this.positive[i] = new NegativeIndexArray();
+          }
+
           return i < 0
             ? this.negative[Math.abs(i) - 1]
             : this.positive[i];
@@ -22,7 +24,7 @@ class NegativeIndexArray {
         return obj[key];
       },
       set: (obj, key, value) => {
-        const i = typeof key === 'String' && Number(key);
+        const i = typeof key === 'string' && Number(key);
         if (Number.isInteger(i)) {
           return i < 0
             ? this.negative[Math.abs(i) - 1] = value
@@ -56,10 +58,6 @@ class NegativeIndexArray {
     return this.toString();
   }
 
-  clone() {
-    return new NegativeIndexArray(this.positive, this.negative);
-  }
-
   toJSON() {
     return this.toString();
   }
@@ -88,10 +86,30 @@ async function getInput() {
   return zyx;
 }
 
+function runCycle(zyx) {
+  const newZyx = new NegativeIndexArray(
+    new NegativeIndexArray(
+      new NegativeIndexArray()
+    )
+  );
+
+  for(let zi = zyx.minIndex; zi <= zyx.maxIndex; zi++) {
+    const yx = zyx[zi];
+
+    for(let yi = yx.minIndex; yi <= yx.maxIndex; yi++) {
+      const x = yx[yi];
+
+      for(let xi = x.minIndex; xi <= x.maxIndex; xi++) {
+        newZyx[zi][yi][xi] = zyx[zi][yi][xi];
+        console.log(newZyx[zi][yi][xi]);
+      }
+    }
+  }
+}
+
 async function p1() {
   const zyx = await getInput();
-  console.log(...zyx)
-  console.log(zyx instanceof NegativeIndexArray)
+  runCycle(zyx);
 }
 
 async function p2() {
