@@ -128,15 +128,21 @@ async function p2() {
   const validNearbyTickets = getValidNearbyTickets(rules, nearby);
   const matched = getNumRulesMatchedPerIndexLookup(rules, ticket.length, validNearbyTickets);
 
+  // Assumes that for exactly one index, one and only one of the field's rules matched all the tickets at that index.
+  // If multiple rules match that criteria, we can never narrow down which field it represents.
   const names = Array(ticket.length);
   for(let iForLoopOnly = 0; iForLoopOnly < rules.length; iForLoopOnly++) {
     for(let i = 0; i < matched.length; i++) {
       const rulesThatMatchedAllNearby = Object
         .entries(matched[i])
-        .filter(([, numMatched]) => numMatched === validNearbyTickets.length);
+        .filter(([, numMatched]) => numMatched === validNearbyTickets.length)
+        .map(([rule]) => rule);
 
       if(rulesThatMatchedAllNearby.length === 1) {
-        names[i] = rulesThatMatchedAllNearby[0][0];
+        names[i] = rulesThatMatchedAllNearby[0];
+        // We no longer want to consider this field rule, as we already found which index it represents.
+        // This should cause another rule to match our stated assumption above.
+        // Otherwise, we run into the same problem of never being able to narrow down which field an index represents.
         matched.forEach(m => delete m[names[i]]);
       }
     }
