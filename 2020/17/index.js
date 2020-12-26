@@ -8,7 +8,7 @@ class NegativeIndexArray {
     // https://stackoverflow.com/a/57634753/2687324
     return new Proxy(this, {
       get: (obj, key) => {
-        const i = Number(key);
+        const i = typeof key === 'String' && Number(key);
         if (Number.isInteger(i)) {
           return i < 0
             ? this.negative[Math.abs(i) - 1]
@@ -18,7 +18,7 @@ class NegativeIndexArray {
         return obj[key];
       },
       set: (obj, key, value) => {
-        const i = Number(key);
+        const i = typeof key === 'String' && Number(key);
         if (Number.isInteger(i)) {
           return i < 0
             ? this.negative[Math.abs(i) - 1] = value
@@ -46,22 +46,36 @@ class NegativeIndexArray {
     return this.toString();
   }
 
+  toJSON() {
+    return this.toString();
+  }
+
   toString() {
-    return `[${this.negative.reverse().join(',')}][${this.positive.join(',')}]`;
+    const negative = this.negative.reverse().join(',');
+    const separator = negative
+      ? ','
+      : '';
+    const positive = this.positive.join(',');
+
+    return `[${negative}${separator}${positive}]`;
   }
 }
 
 async function getInput() {
-  return (await fs.readFile(`${__dirname}/input.txt`))
-    .toString()
-    .trim()
-    .split('\n');
+  const yx = new NegativeIndexArray(
+    (await fs.readFile(`${__dirname}/input.txt`))
+      .toString()
+      .trim()
+      .split('\n')
+      .map(xAxis => new NegativeIndexArray(xAxis.split('')))
+  );
+
+  const zyx = new NegativeIndexArray([yx]);
+  return zyx;
 }
 
 async function p1() {
-  const a = new NegativeIndexArray([1, 2, 3]);
-  a[-3] = 1;
-  console.log({ length: a.length, min: a.minIndex, max: a.maxIndex, a })
+  const zyx = await getInput();
 }
 
 async function p2() {
