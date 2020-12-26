@@ -86,6 +86,19 @@ async function getInput() {
   return zyx;
 }
 
+function logZyx(zyx) {
+  for(let zi = zyx.minIndex; zi <= zyx.maxIndex; zi++) {
+    console.log(`z = ${zi}`);
+
+    const yx = zyx[zi];
+    for(let yi = yx.minIndex; yi <= yx.maxIndex; yi++) {
+
+      const x = yx[yi];
+      console.log(x.negative.reverse().concat(x.positive).join(','));
+    }
+  }
+}
+
 function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
   let numActiveNeighbours = 0;
   for(let z = zi - 1; z <= zi + 1; z++) {
@@ -112,13 +125,19 @@ function runCycle(zyx) {
     )
   );
 
-  for(let zi = zyx.minIndex - 1; zi <= zyx.maxIndex + 1; zi++) {
+  const zMin = zyx.minIndex - 1;
+  const zMax = zyx.maxIndex + 1;
+  for(let zi = zMin; zi <= zMax; zi++) {
     const yx = zyx[zi];
 
-    for(let yi = yx.minIndex - 1; yi <= yx.maxIndex + 1; yi++) {
+    const yMin = yx.minIndex - 1;
+    const yMax = yx.maxIndex + 1;
+    for(let yi = yMin; yi <= yMax; yi++) {
       const x = yx[yi];
 
-      for(let xi = x.minIndex - 1; xi <= x.maxIndex + 1; xi++) {
+      const xMin = x.minIndex - 1;
+      const xMax = x.maxIndex + 1;
+      for(let xi = xMin; xi <= xMax; xi++) {
         const cube = zyx[zi][yi][xi];
         const numActiveNeighbours = getNumActiveNeighbours(zyx, { zi, yi, xi });
 
@@ -155,13 +174,14 @@ function getNumActive(zyx) {
     }
   }
 
-  return newZyx;
+  return numActive;
 }
 
 async function p1() {
   let zyx = await getInput();
   for(let iForLoopOnly = 0; iForLoopOnly < 6; iForLoopOnly++) {
     zyx = runCycle(zyx);
+    logZyx(zyx);
   }
 
   return getNumActive(zyx);
