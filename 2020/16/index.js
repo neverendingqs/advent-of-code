@@ -91,51 +91,56 @@ async function p1() {
 }
 
 async function p2() {
+  function getValidNearbyTickets(rules, nearby) {
+    const isValidLookup = getIsValidLookup(rules);
+    return nearby.filter(
+      nearbyTicket => nearbyTicket.every(value => isValidLookup[value])
+    );
+  }
+
   function isValid(value, { leftMin, leftMax, rightMin, rightMax }) {
     return (leftMin <= value && value <= leftMax)
       || (rightMin <= value && value <= rightMax);
   }
 
+  function getNumRulesMatchedPerIndexLookup(rules, numIndexes, validTickets) {
+    const ruleNames = rules.map(({ name }) => name);
+    const matched = [...Array(numIndexes)]
+      .map(() => ruleNames.reduce(
+        (acc, name) => Object.assign(acc, { [name]: 0 }),
+        {}
+      ));
+
+    for(const nearbyTicket of validTickets) {
+      for(let i = 0; i < nearbyTicket.length; i++) {
+        rules.forEach(rule => {
+          if(isValid(nearbyTicket[i], rule)) {
+            matched[i][rule.name] += 1;
+          }
+        });
+      }
+    };
+
+    return matched;
+  }
+
   const { nearby, rules, ticket } = await getInput();
-
-  const isValidLookup = getIsValidLookup(rules);
-  const validNearbyTickets = nearby.filter(
-    nearbyTicket => nearbyTicket.every(value => isValidLookup[value])
-  );
-
-  const ruleNames = rules.map(({ name }) => name);
-  const matched = [...Array(ticket.length)]
-    .map(() => ruleNames.reduce(
-      (acc, name) => Object.assign(acc, { [name]: 0 }),
-      {}
-    ));
-
-  for(const nearbyTicket of validNearbyTickets) {
-    for(let i = 0; i < nearbyTicket.length; i++) {
-      rules.forEach(rule => {
-        if(isValid(nearbyTicket[i], rule)) {
-          matched[i][rule.name] += 1;
-        }
-      });
-    }
-  };
+  const validNearbyTickets = getValidNearbyTickets(rules, nearby);
+  const matched = getNumRulesMatchedPerIndexLookup(rules, ticket.length, validNearbyTickets);
 
   const names = Array(ticket.length);
-  for(let i = 0; i < rules.length; i++) {
-    for(let j = 0; j < matched.length; j++) {
+  for(let iForLoopOnly = 0; iForLoopOnly < rules.length; iForLoopOnly++) {
+    for(let i = 0; i < matched.length; i++) {
       const rulesThatMatchedAllNearby = Object
-        .entries(matched[j])
-        .filter(([, numMatched]) => numMatched === ticket.length);
+        .entries(matched[i])
+        .filter(([, numMatched]) => numMatched === validNearbyTickets.length);
 
       if(rulesThatMatchedAllNearby.length === 1) {
-        names[j] = rulesThatMatchedAllNearby[0][0];
-        matched.forEach(m => delete m[names[j]]);
+        names[i] = rulesThatMatchedAllNearby[0][0];
+        matched.forEach(m => delete m[names[i]]);
       }
     }
   }
-
-  console.log(matched)
-  console.log(names)
 
   return ticket.reduce(
     (acc, value, i) => names[i].startsWith('departure')
@@ -152,6 +157,6 @@ module.exports = async () => {
 
   /*
    * p1: 22977
-   * p2:
+   * p2: 998358379943
    */
 };
