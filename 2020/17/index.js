@@ -30,12 +30,24 @@ class NegativeIndexArray {
     });
   }
 
+  get maxIndex() {
+    return this.positive.length - 1;
+  }
+
+  get minIndex() {
+    return -this.negative.length;
+  }
+
+  get length() {
+    return this.negative.length + this.positive.length;
+  }
+
   get[Symbol.toStringTag]() {
     return this.toString();
   }
 
   toString() {
-    return `[${this.negative.join(',')}][${this.positive.join(',')}]`;
+    return `[${this.negative.reverse().join(',')}][${this.positive.join(',')}]`;
   }
 }
 
@@ -47,6 +59,9 @@ async function getInput() {
 }
 
 async function p1() {
+  const a = new NegativeIndexArray([1, 2, 3]);
+  a[-3] = 1;
+  console.log({ length: a.length, min: a.minIndex, max: a.maxIndex, a })
 }
 
 async function p2() {
