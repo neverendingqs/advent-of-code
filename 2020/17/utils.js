@@ -10,8 +10,13 @@ function generateZYXArray(numZ, numY, numX) {
   return [...Array(numZ)].map(() => generateYXArray(numY, numX));
 }
 
+function generateWZYXArray(numW, numZ, numY, numX) {
+  return [...Array(numW)].map(() => generateZYXArray(numZ, numY, numX));
+}
+
 module.exports = {
   generateXArray,
   generateYXArray,
-  generateZYXArray
+  generateZYXArray,
+  generateWZYXArray
 };
