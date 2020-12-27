@@ -1,105 +1,77 @@
 const { promises: fs } = require('fs');
 
-class NegativeIndexArray {
-  constructor(initial) {
-    this.positive = [...(initial ?? [])];
-    this.negative = [];
-
-    // https://stackoverflow.com/a/57634753/2687324
-    return new Proxy(this, {
-      get: (obj, key) => {
-        const i = typeof key === 'string' && Number(key);
-        if (Number.isInteger(i)) {
-          if(i < 0 && this.negative[Math.abs(i) - 1] === undefined) {
-            this.negative[Math.abs(i) - 1] = new NegativeIndexArray();
-          } else if (i >= 0 && this.positive[i] === undefined) {
-            this.positive[i] = new NegativeIndexArray();
-          }
-
-          return i < 0
-            ? this.negative[Math.abs(i) - 1]
-            : this.positive[i];
-        }
-
-        return obj[key];
-      },
-      set: (obj, key, value) => {
-        const i = typeof key === 'string' && Number(key);
-        if (Number.isInteger(i)) {
-          return i < 0
-            ? this.negative[Math.abs(i) - 1] = value
-            : this.positive[i] = value;
-        }
-
-        return obj[key] = value;
-      }
-    });
-  }
-
-  get maxIndex() {
-    return this.positive.length - 1;
-  }
-
-  get minIndex() {
-    return -this.negative.length;
-  }
-
-  get length() {
-    return this.negative.length + this.positive.length;
-  }
-
-  * [Symbol.iterator]() {
-		for(const value of this.negative.reverse().concat(this.positive)) {
-      yield value;
-    }
-	}
-
-  get[Symbol.toStringTag]() {
-    return this.toString();
-  }
-
-  toJSON() {
-    return this.toString();
-  }
-
-  toString() {
-    const negative = this.negative.reverse().join(',');
-    const separator = negative
-      ? ','
-      : '';
-    const positive = this.positive.join(',');
-
-    return `[${negative}${separator}${positive}]`;
-  }
+function generateXArray(numX) {
+  return [...Array(numX)].map(() => '.');
 }
 
-async function getInput() {
-  const yx = new NegativeIndexArray(
-    (await fs.readFile(`${__dirname}/input.txt`))
-      .toString()
-      .trim()
-      .split('\n')
-      .map(xAxis => new NegativeIndexArray(xAxis.split('')))
-  );
+function generateYXArray(numY, numX) {
+  return [...Array(numY)].map(() => generateXArray(numX));
+}
 
-  const zyx = new NegativeIndexArray([yx]);
+function generateZYXArray(numZ, numY, numX) {
+  return [...Array(numZ)].map(() => generateYXArray(numY, numX));
+}
+
+async function getInput(padding = 1) {
+  const y = (await fs.readFile(`${__dirname}/input.txt`))
+    .toString()
+    .trim()
+    .split('\n');
+
+  const numXValues = padding
+    + y[0]
+      .split('')
+      .length
+    + padding;
+
+  const yx =
+  [
+    ...generateYXArray(padding, numXValues),
+    ...y
+      .map(xAxis => ([
+        ...generateXArray(padding),
+        ...xAxis.split(''),
+        ...generateXArray(padding)
+      ])),
+    ...generateYXArray(padding, numXValues)
+  ];
+
+  const zyx = [
+    ...generateZYXArray(padding, yx.length, numXValues),
+    yx,
+    ...generateZYXArray(padding, yx.length, numXValues)
+  ];
   return zyx;
 }
 
 function logZyx(zyx) {
-  for(let zi = zyx.minIndex; zi <= zyx.maxIndex; zi++) {
+  for(let zi = 0; zi < zyx.length; zi++) {
     console.log(`z = ${zi}`);
 
     const yx = zyx[zi];
-    for(let yi = yx.minIndex; yi <= yx.maxIndex; yi++) {
+    console.log(
+      yx
+        .map(x => x.join(','))
+        .join('\n')
+    );
 
-      const x = yx[yi];
-      console.log(x.negative.reverse().concat(x.positive).join(','));
-    }
+    console.log();
   }
 }
 
 function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
+  zi = zi < 1
+    ? 1
+    : zi;
+
+  yi = yi < 1
+    ? 1
+    : yi;
+
+  xi = xi < 1
+    ? 1
+    : xi;
+
   let numActiveNeighbours = 0;
   for(let z = zi - 1; z <= zi + 1; z++) {
     for(let y = yi - 1; y <= yi + 1; y++) {
@@ -108,7 +80,7 @@ function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
           continue;
         }
 
-        numActiveNeighbours += zyx[z][y][x] === '#'
+        numActiveNeighbours += zyx[z]?.[y]?.[x] === '#'
           ? 1
           : 0;
       }
@@ -119,25 +91,19 @@ function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
 }
 
 function runCycle(zyx) {
-  const newZyx = new NegativeIndexArray(
-    new NegativeIndexArray(
-      new NegativeIndexArray()
-    )
-  );
+  const numZ = zyx.length;
+  const numY = zyx[0].length;
+  const numX = zyx[0][0].length;
 
-  const zMin = zyx.minIndex - 1;
-  const zMax = zyx.maxIndex + 1;
-  for(let zi = zMin; zi <= zMax; zi++) {
+  const newZyx = generateZYXArray(numZ, numY, numX);
+
+  for(let zi = 0; zi < numZ; zi++) {
     const yx = zyx[zi];
 
-    const yMin = yx.minIndex - 1;
-    const yMax = yx.maxIndex + 1;
-    for(let yi = yMin; yi <= yMax; yi++) {
+    for(let yi = 0; yi < numY; yi++) {
       const x = yx[yi];
 
-      const xMin = x.minIndex - 1;
-      const xMax = x.maxIndex + 1;
-      for(let xi = xMin; xi <= xMax; xi++) {
+      for(let xi = 0; xi < numX; xi++) {
         const cube = zyx[zi][yi][xi];
         const numActiveNeighbours = getNumActiveNeighbours(zyx, { zi, yi, xi });
 
@@ -158,15 +124,19 @@ function runCycle(zyx) {
 }
 
 function getNumActive(zyx) {
+  const numZ = zyx.length;
+  const numY = zyx[0].length;
+  const numX = zyx[0][0].length;
+
   let numActive = 0;
 
-  for(let zi = zyx.minIndex; zi <= zyx.maxIndex; zi++) {
+  for(let zi = 0; zi < numZ; zi++) {
     const yx = zyx[zi];
 
-    for(let yi = yx.minIndex; yi <= yx.maxIndex; yi++) {
+    for(let yi = 0; yi < numY; yi++) {
       const x = yx[yi];
 
-      for(let xi = x.minIndex; xi <= x.maxIndex; xi++) {
+      for(let xi = 0; xi < numX; xi++) {
         numActive += zyx[zi][yi][xi] === '#'
           ? 1
           : 0;
@@ -179,7 +149,8 @@ function getNumActive(zyx) {
 
 async function p1() {
   let zyx = await getInput();
-  for(let iForLoopOnly = 0; iForLoopOnly < 6; iForLoopOnly++) {
+  logZyx(zyx);
+  for(let iForLoopOnly = 0; iForLoopOnly < 2; iForLoopOnly++) {
     zyx = runCycle(zyx);
     logZyx(zyx);
   }
