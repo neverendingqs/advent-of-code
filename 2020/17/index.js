@@ -12,7 +12,7 @@ function generateZYXArray(numZ, numY, numX) {
   return [...Array(numZ)].map(() => generateYXArray(numY, numX));
 }
 
-async function getInput(padding = 1) {
+async function getInput(padding = 10) {
   const y = (await fs.readFile(`${__dirname}/input.txt`))
     .toString()
     .trim()
@@ -54,29 +54,30 @@ function logZyx(zyx) {
         .map(x => x.join(','))
         .join('\n')
     );
-
     console.log();
   }
+
+  console.log('==========');
 }
 
 function getNumActiveNeighbours(zyx, { zi, yi, xi }) {
-  zi = zi < 1
-    ? 1
-    : zi;
+  const zStart = zi < 1
+    ? 0
+    : zi - 1;
 
-  yi = yi < 1
-    ? 1
-    : yi;
+  const yStart = yi < 1
+    ? 0
+    : yi - 1;
 
-  xi = xi < 1
-    ? 1
-    : xi;
+  const xStart = xi < 1
+    ? 0
+    : xi - 1;
 
   let numActiveNeighbours = 0;
-  for(let z = zi - 1; z <= zi + 1; z++) {
-    for(let y = yi - 1; y <= yi + 1; y++) {
-      for(let x = xi - 1; x <= xi + 1; x++) {
-        if(z === 0 && y === 0 && x === 0) {
+  for(let z = zStart; z <= zi + 1; z++) {
+    for(let y = yStart; y <= yi + 1; y++) {
+      for(let x = xStart; x <= xi + 1; x++) {
+        if(z === zi && y === yi && x === xi) {
           continue;
         }
 
@@ -149,10 +150,9 @@ function getNumActive(zyx) {
 
 async function p1() {
   let zyx = await getInput();
-  logZyx(zyx);
-  for(let iForLoopOnly = 0; iForLoopOnly < 2; iForLoopOnly++) {
+  for(let iForLoopOnly = 0; iForLoopOnly < 6; iForLoopOnly++) {
     zyx = runCycle(zyx);
-    logZyx(zyx);
+    // logZyx(zyx);
   }
 
   return getNumActive(zyx);
@@ -167,7 +167,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
+   * p1: 255
    * p2:
    */
 };
