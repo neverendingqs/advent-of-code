@@ -70,6 +70,56 @@ async function p1() {
 }
 
 async function p2() {
+  function solve(expression, iStart = 0) {
+    let lastEvaluatedIndexExclusive = expression.length;
+    const flattened = [];
+
+    for(let i = iStart; i < expression.length; i++) {
+      const symbol = expression[i];
+
+      if(symbol === '(') {
+        const { iEnd, result: expressionValue } = solve(expression, i + 1);
+        i = iEnd;
+        flattened.push(expressionValue);
+      } else if(symbol === ')') {
+        lastEvaluatedIndexExclusive = i;
+        break;
+      } else {
+        flattened.push(expression[i]);
+      }
+    }
+
+    const product = [];
+    for(let i = 0; i < flattened.length; i++) {
+      if(flattened[i] === '*') {
+        continue;
+      }
+
+      let currentSum = parseInt(flattened[i]);
+      while(flattened[i + 1] === '+') {
+        currentSum += parseInt(flattened[i + 2]);
+        i += 2
+      }
+
+      product.push(currentSum);
+    }
+
+    const result = product.reduce(
+      (acc, x) => acc * x,
+      1
+    );
+
+    return {
+      iEnd: lastEvaluatedIndexExclusive,
+      result
+    };
+  }
+
+  const input = await getInput();
+  return input.reduce(
+    (acc, expression) => acc + solve(expression).result,
+    0
+  );
 }
 
 module.exports = async () => {
@@ -79,6 +129,6 @@ module.exports = async () => {
 
   /*
    * p1: 5374004645253
-   * p2:
+   * p2: 88782789402798
    */
 };
