@@ -23,8 +23,7 @@ async function getInput() {
   return { messages, rules };
 }
 
-async function p1() {
-  const { messages, rules } = await getInput();
+function run({ messages, rules }) {
   const rulesEvaluator = Object
     .entries(rules)
     .reduce(
@@ -82,6 +81,11 @@ async function p1() {
       return isValid && iEnd === message.length;
     })
     .length;
+}
+
+async function p1() {
+  const { messages, rules } = await getInput();
+  return run({ messages, rules });
 }
 
 async function p2() {
