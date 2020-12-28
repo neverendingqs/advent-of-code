@@ -9,59 +9,59 @@ async function getInput() {
     .map(symbols => symbols.filter(symbol => symbol !== ' '));
 }
 
-function solve(expression, iStart = 0) {
-  let result;
-  let lastOperator;
-
-  function partialEvaluation(value) {
-    switch(lastOperator) {
-      case undefined:
-        result = value;
-        break;
-
-      case '+':
-        result += value;
-        break;
-
-      case '*':
-        result *= value;
-        break;
-
-      default:
-        throw new Error('Should not have reached here.');
-    }
-  }
-
-  for(let i = iStart; i < expression.length; i++) {
-    switch(expression[i]) {
-      case '(':
-        const { iEnd, result: expressionValue } = solve(expression, i + 1);
-        i = iEnd;
-        partialEvaluation(expressionValue);
-        break;
-
-      case ')':
-        return { iEnd: i, result };
-
-      case '+':
-      case '*':
-        lastOperator = expression[i];
-        break;
-
-      default:
-        const value = parseInt(expression[i]);
-        partialEvaluation(value);
-        break;
-    }
-  }
-
-  return {
-    iEnd: expression.length,
-    result
-  };
-}
-
 async function p1() {
+  function solve(expression, iStart = 0) {
+    let result;
+    let lastOperator;
+
+    function partialEvaluation(value) {
+      switch(lastOperator) {
+        case undefined:
+          result = value;
+          break;
+
+        case '+':
+          result += value;
+          break;
+
+        case '*':
+          result *= value;
+          break;
+
+        default:
+          throw new Error('Should not have reached here.');
+      }
+    }
+
+    for(let i = iStart; i < expression.length; i++) {
+      switch(expression[i]) {
+        case '(':
+          const { iEnd, result: expressionValue } = solve(expression, i + 1);
+          i = iEnd;
+          partialEvaluation(expressionValue);
+          break;
+
+        case ')':
+          return { iEnd: i, result };
+
+        case '+':
+        case '*':
+          lastOperator = expression[i];
+          break;
+
+        default:
+          const value = parseInt(expression[i]);
+          partialEvaluation(value);
+          break;
+      }
+    }
+
+    return {
+      iEnd: expression.length,
+      result
+    };
+  }
+
   const input = await getInput();
   return input.reduce(
     (acc, expression) => acc + solve(expression).result,
