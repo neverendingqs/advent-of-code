@@ -1,4 +1,13 @@
+fn p1() -> String {
+  String::new()
+}
+
+fn p2() -> String {
+  String::new()
+}
+
 pub fn answer() {
-  let day = "12";
-  println!("Please implement me, {}!", day);
+  println!("Day {}", "12");
+  println!("p1: {}", p1());
+  println!("p2: {}", p2());
 }
