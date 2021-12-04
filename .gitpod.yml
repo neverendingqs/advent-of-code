@@ -1,0 +1,8 @@
+gitConfig:
+  alias.amend: commit --amend --no-edit
+  alias.diffc: diff --cached
+  alias.restage: update-index --again
+  alias.tree: log --oneline --graph --color --all --decorate
+  push.default: current
+  pull.rebase: 'true'
+  core.autocrlf: 'false'
