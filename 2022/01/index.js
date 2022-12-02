@@ -2,10 +2,29 @@ const { promises: fs } = require('fs');
 
 async function getInput() {
   const input = (await fs.readFile(`${__dirname}/input.txt`))
-    .toString();
+    .toString()
+    .trim();
+  const inventories = input
+    .split('\n\n')
+    .map(inventory => inventory.split('\n').map(calories => parseInt(calories)));
+
+  return inventories;
+}
+
+function sumArray(arr) {
+  return arr.reduce(
+    (acc, element) => acc + element,
+    0
+  );
 }
 
 async function p1() {
+  const inventories = await getInput();
+  const sumCalories = inventories.reduce(
+    (acc, inventory) => acc.concat(sumArray(inventory)),
+    []
+  );
+  return Math.max(...sumCalories);
 }
 
 async function p2() {
