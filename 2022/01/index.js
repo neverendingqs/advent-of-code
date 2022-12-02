@@ -18,12 +18,18 @@ function sumArray(arr) {
   );
 }
 
-async function p1() {
+async function getSumCalories() {
   const inventories = await getInput();
   const sumCalories = inventories.reduce(
     (acc, inventory) => acc.concat(sumArray(inventory)),
     []
   );
+
+  return sumCalories;
+}
+
+async function p1() {
+  const sumCalories = await getSumCalories();
   return Math.max(...sumCalories);
 }
 
