@@ -47,6 +47,53 @@ async function p1() {
 }
 
 async function p2() {
+  const selectionScore = {
+    'A': 1, // rock
+    'B': 2, // paper
+    'C': 3, // scissors
+  };
+
+  const input = await getInput();
+
+  return input.reduce(
+    (acc, [opponentMove, endState]) => {
+      let myMove;
+
+      if(endState === 'X') {
+        // lose
+        if(opponentMove === 'A') {
+          myMove = 'C';
+        } else if (opponentMove === 'B') {
+          myMove = 'A';
+        } else if(opponentMove === 'C') {
+          myMove = 'B';
+        } else {
+          throw new Error('Should not reach here!');
+        }
+      } else if (endState === 'Y') {
+        // tie
+        myMove = opponentMove;
+        acc += 3;
+      } else if (endState === 'Z') {
+        // win
+        if(opponentMove === 'A') {
+          myMove = 'B';
+        } else if (opponentMove === 'B') {
+          myMove = 'C';
+        } else if(opponentMove === 'C') {
+          myMove = 'A';
+        } else {
+          throw new Error('Should not reach here!');
+        }
+        acc += 6;
+      } else {
+        throw new Error('Should not reach here!');
+      }
+
+      return acc + selectionScore[myMove];
+    },
+    0
+  );
 }
 
 module.exports = async () => {
