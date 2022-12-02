@@ -34,6 +34,12 @@ async function p1() {
 }
 
 async function p2() {
+  const sumCalories = await getSumCalories();
+  const topThree = sumCalories
+    .sort((a, b) => b - a)
+    .slice(0, 3);
+
+  return sumArray(topThree);
 }
 
 module.exports = async () => {
