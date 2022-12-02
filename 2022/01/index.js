@@ -48,7 +48,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
-   * p2:
+   * p1: 72070
+   * p2: 211805
    */
 };
