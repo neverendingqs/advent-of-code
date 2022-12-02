@@ -53,6 +53,18 @@ async function p2() {
     'C': 3, // scissors
   };
 
+  const loseMap = {
+    'A': 'C', // rock - scissors
+    'B': 'A', // paper - rock
+    'C': 'B', // scissors - paper
+  }
+
+  const winMap = {
+    'A': 'B', // rock - paper
+    'B': 'C', // paper - scissors
+    'C': 'A', // scissors - rock
+  }
+
   const input = await getInput();
 
   return input.reduce(
@@ -60,37 +72,20 @@ async function p2() {
       let myMove;
 
       if(endState === 'X') {
-        // lose
-        if(opponentMove === 'A') {
-          myMove = 'C';
-        } else if (opponentMove === 'B') {
-          myMove = 'A';
-        } else if(opponentMove === 'C') {
-          myMove = 'B';
-        } else {
-          throw new Error('Should not reach here!');
-        }
-      } else if (endState === 'Y') {
-        // tie
-        myMove = opponentMove;
-        acc += 3;
-      } else if (endState === 'Z') {
-        // win
-        if(opponentMove === 'A') {
-          myMove = 'B';
-        } else if (opponentMove === 'B') {
-          myMove = 'C';
-        } else if(opponentMove === 'C') {
-          myMove = 'A';
-        } else {
-          throw new Error('Should not reach here!');
-        }
-        acc += 6;
-      } else {
-        throw new Error('Should not reach here!');
+        myMove = loseMap[opponentMove];
+        return acc + selectionScore[myMove];
       }
 
-      return acc + selectionScore[myMove];
+      if (endState === 'Y') {
+        return acc + 3 + selectionScore[opponentMove];
+      }
+
+      if (endState === 'Z') {
+        myMove = winMap[opponentMove];
+        return acc + 6 + selectionScore[myMove];
+      }
+
+      throw new Error('Should not reach here!');
     },
     0
   );
@@ -102,7 +97,7 @@ module.exports = async () => {
   console.log('p2:', p2a);
 
   /*
-   * p1:
-   * p2:
+   * p1: 10941
+   * p2: 13071
    */
 };
