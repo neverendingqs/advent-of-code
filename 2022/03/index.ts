@@ -22,6 +22,15 @@ function getPriority(letter: string): number {
   return asciiValue - 65 + 1 + 26;
 }
 
+function setIntersection(...sets: Set<string>[]) {
+  let intersection: string[] = [...sets[0]];
+  for(const set of sets.slice(1)) {
+    intersection = intersection.filter(x => set.has(x));
+  }
+
+  return new Set(intersection);
+}
+
 async function p1(): Promise<string> {
   const splitInventories: String[][] = (await getInput())
     .map(bothInventories => {
@@ -53,7 +62,23 @@ async function p1(): Promise<string> {
 }
 
 async function p2(): Promise<string> {
-  return '';
+  const input: string[] = await getInput();
+
+  let sumPriorities = 0;
+  for(let i = 0; i < input.length; i += 3) {
+    const groupInventories: Set<string>[] = input
+      .slice(i, i + 3)
+      .map(rucksack => new Set(rucksack.split('')));
+
+    const [badge, ...shouldBeEmpty] = [...setIntersection(...groupInventories)];
+
+    if(shouldBeEmpty.length !== 0) {
+      throw new Error(`Expected no extra badge types, but found '${JSON.stringify(shouldBeEmpty)}'. Expected only '${badge}'`);
+    }
+
+    sumPriorities += getPriority(badge);
+  }
+  return sumPriorities.toString();
 }
 
 export async function solution(): Promise<void> {
@@ -63,6 +88,6 @@ export async function solution(): Promise<void> {
 
   /*
    * p1: 8233
-   * p2:
+   * p2: 2821
    */
 };
