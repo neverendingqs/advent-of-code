@@ -1,19 +1,10 @@
 import readInput from '../lib/readInput';
 
-async function getInput(): Promise<string[][]> {
+async function getInput(): Promise<string[]> {
   const file = await readInput(__dirname);
   return file
-    .split('\n')
-    .map(bothInventories => {
-      if(bothInventories.length % 2 !== 0) {
-        throw new Error(`Invalid line '${bothInventories}'`);
-      }
-      const splitIndex = bothInventories.length / 2;
-      return [
-        bothInventories.slice(0, splitIndex),
-        bothInventories.slice(splitIndex),
-      ];
-    })
+    .split('\n');
+
 }
 
 function getPriority(letter: string): number {
@@ -32,8 +23,19 @@ function getPriority(letter: string): number {
 }
 
 async function p1(): Promise<string> {
-  const input: String[][] = await getInput();
-  const sumPriorities: number = input.reduce(
+  const splitInventories: String[][] = (await getInput())
+    .map(bothInventories => {
+      if(bothInventories.length % 2 !== 0) {
+        throw new Error(`Invalid line '${bothInventories}'`);
+      }
+      const splitIndex = bothInventories.length / 2;
+      return [
+        bothInventories.slice(0, splitIndex),
+        bothInventories.slice(splitIndex),
+      ];
+    });
+
+  const sumPriorities: number = splitInventories.reduce(
     (acc, [firstCompartment, secondCompartment]) => {
       const firstCompartmentSet = new Set(firstCompartment.split(''));
       for(const item of secondCompartment.split('')) {
