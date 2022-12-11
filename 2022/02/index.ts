@@ -33,13 +33,10 @@ async function p1(): Promise<string> {
     [OpponentMove.Scissors]: MyMove.Scissors,
   };
 
-  const input = await getInput();
+  const input = await getInput() as Array<[OpponentMove, MyMove]>;
 
   const score: number =  input.reduce(
-    (acc: number, [opponentMoveString, myMoveString]) => {
-      const opponentMove = opponentMoveString as OpponentMove;
-      const myMove = myMoveString as MyMove;
-
+    (acc: number, [opponentMove, myMove]) => {
       let totalScore = acc + selectionScore[myMove];
 
       if(opponentToYourMove[opponentMove] === myMove) {
@@ -93,12 +90,10 @@ async function p2(): Promise<string> {
     [Move.Scissors]: Move.Rock,
   };
 
-  const input = await getInput();
+  const input = await getInput() as Array<[Move, EndState]>;
 
   const solution = input.reduce(
-    (acc, [opponentMoveString, endStateString]) => {
-      const opponentMove = opponentMoveString as Move;
-      const endState = endStateString as EndState;
+    (acc, [opponentMove, endState]) => {
 
       if(endState === EndState.Lose) {
         const myMove = loseMap[opponentMove];
