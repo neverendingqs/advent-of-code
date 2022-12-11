@@ -2,9 +2,7 @@ import readInput from '../lib/readInput';
 
 async function getInput(): Promise<string[]> {
   const file = await readInput(__dirname);
-  return file
-    .split('\n');
-
+  return file.split('\n');
 }
 
 function getPriority(letter: string): number {
