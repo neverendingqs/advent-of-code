@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+defaults:
+  run:
+    working-directory: 2022/
+
 jobs:
   ci:
     runs-on: ubuntu-latest
