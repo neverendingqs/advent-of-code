@@ -52,7 +52,10 @@ async function p1(): Promise<string> {
 }
 
 async function p2(): Promise<string> {
-  return '';
+  return solve(
+    ({ left, right }: Assignment) =>
+      left.end >= right.start && right.end >= left.start
+  );
 }
 
 export async function solution(): Promise<void> {
@@ -62,6 +65,6 @@ export async function solution(): Promise<void> {
 
   /*
    * p1: 496
-   * p2:
+   * p2: 847
    */
 }
