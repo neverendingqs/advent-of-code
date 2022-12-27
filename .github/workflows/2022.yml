@@ -14,7 +14,7 @@ env:
   WORKING_DIRECTORY: 2022/
 
 jobs:
-  ci:
+  ci-2022:
     runs-on: ubuntu-latest
 
     steps:
