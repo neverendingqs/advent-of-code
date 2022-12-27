@@ -1,22 +1,20 @@
 import readInput from '../lib/readInput';
 
-async function getInput(): Promise<string[]> {
-  const file: string = await readInput(__dirname);
-  return file.split('\n');
+interface Section {
+  start: number,
+  end: number,
 }
 
-async function p1(): Promise<string> {
-  interface Section {
-    start: number,
-    end: number,
-  }
+interface Assignment {
+  left: Section,
+  right: Section,
+}
 
-  interface Assignment {
-    left: Section,
-    right: Section,
-  }
+async function getInput(): Promise<Assignment[]> {
+  const file: string = await readInput(__dirname);
 
-  const assignments: Assignment[] = (await getInput())
+  const assignments: Assignment[] = file
+    .split('\n')
     .map((assignment: string) => {
       const [left, right]: Section[] = assignment.split(',')
         .map((section: string) => {
@@ -30,15 +28,27 @@ async function p1(): Promise<string> {
       return { left, right };
     });
 
-  return assignments
-    .filter(({ left, right }: Assignment) =>
-      // `right` is inside `left`
-      left.start <= right.start && left.end >= right.end ||
-      // `left` is inside `right
-      left.start >= right.start && left.end <= right.end
-    )
+  return assignments;
+}
+
+async function solve(
+  filterFunction: (assignment: Assignment) => boolean)
+: Promise<string> {
+  return (await getInput())
+    .filter(filterFunction)
     .length
     .toString();
+}
+
+async function p1(): Promise<string> {
+  return solve(
+    ({ left, right }: Assignment) =>
+      // `right` is inside `left`
+      left.start <= right.start && left.end >= right.end ||
+
+      // `left` is inside `right
+      left.start >= right.start && left.end <= right.end
+  );
 }
 
 async function p2(): Promise<string> {
