@@ -1,0 +1,21 @@
+name: 2022
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        cache: npm
+        cache-dependency-path: 2022/package-lock.json
+        node-version-file: 2022/.nvmrc
+    - run: npm ci
+    - run: npm run test
