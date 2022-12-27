@@ -1,11 +1,44 @@
 import readInput from '../lib/readInput';
 
-async function getInput(): Promise<any> {
+async function getInput(): Promise<string[]> {
   const file: string = await readInput(__dirname);
+  return file.split('\n');
 }
 
 async function p1(): Promise<string> {
-  return '';
+  interface Section {
+    start: number,
+    end: number,
+  }
+
+  interface Assignment {
+    left: Section,
+    right: Section,
+  }
+
+  const assignments: Assignment[] = (await getInput())
+    .map((assignment: string) => {
+      const [left, right]: Section[] = assignment.split(',')
+        .map((section: string) => {
+          const [start, end]: string[] = section.split('-');
+          return {
+            start: parseInt(start),
+            end: parseInt(end),
+          };
+        })
+
+      return { left, right };
+    });
+
+  return assignments
+    .filter(({ left, right }: Assignment) =>
+      // `right` is inside `left`
+      left.start <= right.start && left.end >= right.end ||
+      // `left` is inside `right
+      left.start >= right.start && left.end <= right.end
+    )
+    .length
+    .toString();
 }
 
 async function p2(): Promise<string> {
@@ -18,7 +51,7 @@ export async function solution(): Promise<void> {
   console.log('p2:', p2a);
 
   /*
-   * p1:
+   * p1: 496
    * p2:
    */
 }
