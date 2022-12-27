@@ -4,9 +4,12 @@
   "description": "https://adventofcode.com/",
   "main": "index.ts",
   "scripts": {
+    "lint": "eslint --ignore-path ../.gitignore .",
+    "setup": "ts-node setup.ts",
     "solve": "ts-node index.ts",
     "tsc": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "posttest": "npm run lint"
   },
   "repository": {
     "type": "git",
