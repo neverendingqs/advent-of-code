@@ -57,10 +57,23 @@ async function getInput(): Promise<Input> {
   return { instructions, stacks };
 }
 
-async function p1(): Promise<string> {
+async function solve(
+  updateStacksInPlace: (instruction: Instruction, stacks: string[][]) => void
+) {
   const { instructions, stacks }: Input = await getInput();
 
   for(const instruction of instructions) {
+    updateStacksInPlace(instruction, stacks);
+  }
+
+  return stacks.reduce(
+    (acc: string, stack: string[]) => acc + stack.pop(),
+    ''
+  );
+}
+
+async function p1(): Promise<string> {
+  function updateStacksInPlace(instruction: Instruction, stacks: string[][]) {
     const { destination, numCrates, source }: Instruction = instruction;
 
     for(let i: number = 0; i < numCrates; i++) {
@@ -74,24 +87,16 @@ async function p1(): Promise<string> {
     }
   }
 
-  return stacks.reduce(
-    (acc: string, stack: string[]) => acc + stack.pop(),
-    ''
-  );
+  return solve(updateStacksInPlace);
 }
 
 async function p2(): Promise<string> {
-  const { instructions, stacks }: Input = await getInput();
-
-  for(const instruction of instructions) {
+  function updateStacksInPlace(instruction: Instruction, stacks: string[][]) {
     const { destination, numCrates, source }: Instruction = instruction;
     stacks[destination].push(...stacks[source].splice(-numCrates))
   }
 
-  return stacks.reduce(
-    (acc: string, stack: string[]) => acc + stack.pop(),
-    ''
-  );
+  return solve(updateStacksInPlace);
 }
 
 export async function solution(): Promise<void> {
