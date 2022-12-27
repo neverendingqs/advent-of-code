@@ -81,7 +81,17 @@ async function p1(): Promise<string> {
 }
 
 async function p2(): Promise<string> {
-  return '';
+  const { instructions, stacks }: Input = await getInput();
+
+  for(const instruction of instructions) {
+    const { destination, numCrates, source }: Instruction = instruction;
+    stacks[destination].push(...stacks[source].splice(-numCrates))
+  }
+
+  return stacks.reduce(
+    (acc: string, stack: string[]) => acc + stack.pop(),
+    ''
+  );
 }
 
 export async function solution(): Promise<void> {
@@ -90,7 +100,7 @@ export async function solution(): Promise<void> {
   console.log('p2:', p2a);
 
   /*
-   * p1:
-   * p2:
+   * p1: VJSFHWGFT
+   * p2: LCTQFBVZV
    */
 }
