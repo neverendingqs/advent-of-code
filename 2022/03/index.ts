@@ -1,7 +1,7 @@
 import readInput from '../lib/readInput';
 
 async function getInput(): Promise<string[]> {
-  const file = await readInput(__dirname);
+  const file: string = await readInput(__dirname);
   return file.split('\n');
 }
 
@@ -23,19 +23,19 @@ function getPriority(letter: string): number {
 function setIntersection(...sets: Set<string>[]) {
   let intersection: string[] = [...sets[0]];
   for(const set of sets.slice(1)) {
-    intersection = intersection.filter(x => set.has(x));
+    intersection = intersection.filter((x: string) => set.has(x));
   }
 
   return new Set(intersection);
 }
 
 async function p1(): Promise<string> {
-  const splitInventories: String[][] = (await getInput())
-    .map(bothInventories => {
+  const splitInventories: string[][] = (await getInput())
+    .map((bothInventories: string) => {
       if(bothInventories.length % 2 !== 0) {
         throw new Error(`Invalid line '${bothInventories}'`);
       }
-      const splitIndex = bothInventories.length / 2;
+      const splitIndex: number = bothInventories.length / 2;
       return [
         bothInventories.slice(0, splitIndex),
         bothInventories.slice(splitIndex),
@@ -43,8 +43,8 @@ async function p1(): Promise<string> {
     });
 
   const sumPriorities: number = splitInventories.reduce(
-    (acc, [firstCompartment, secondCompartment]) => {
-      const firstCompartmentSet = new Set(firstCompartment.split(''));
+    (acc: number, [firstCompartment, secondCompartment]: string[]) => {
+      const firstCompartmentSet: Set<string> = new Set(firstCompartment.split(''));
       for(const item of secondCompartment.split('')) {
         if(firstCompartmentSet.has(item)) {
           return acc + getPriority(item);
@@ -56,19 +56,19 @@ async function p1(): Promise<string> {
     0
   );
 
-  return sumPriorities.toString();;
+  return sumPriorities.toString();
 }
 
 async function p2(): Promise<string> {
   const input: string[] = await getInput();
 
-  let sumPriorities = 0;
-  for(let i = 0; i < input.length; i += 3) {
+  let sumPriorities: number = 0;
+  for(let i: number = 0; i < input.length; i += 3) {
     const groupInventories: Set<string>[] = input
       .slice(i, i + 3)
-      .map(rucksack => new Set(rucksack.split('')));
+      .map((rucksack: string) => new Set(rucksack.split('')));
 
-    const [badge, ...shouldBeEmpty] = [...setIntersection(...groupInventories)];
+    const [badge, ...shouldBeEmpty]: string[] = [...setIntersection(...groupInventories)];
 
     if(shouldBeEmpty.length !== 0) {
       throw new Error(`Expected no extra badge types, but found '${JSON.stringify(shouldBeEmpty)}'. Expected only '${badge}'`);
@@ -80,7 +80,7 @@ async function p2(): Promise<string> {
 }
 
 export async function solution(): Promise<void> {
-  const [p1a, p2a] = await Promise.all([p1(), p2()]);
+  const [p1a, p2a]: string[] = await Promise.all([p1(), p2()]);
   console.log('p1:', p1a)
   console.log('p2:', p2a);
 
@@ -88,4 +88,4 @@ export async function solution(): Promise<void> {
    * p1: 8233
    * p2: 2821
    */
-};
+}
