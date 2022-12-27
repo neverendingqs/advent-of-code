@@ -10,6 +10,9 @@ defaults:
   run:
     working-directory: 2022/
 
+env:
+  WORKING_DIRECTORY: 2022/
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         cache: npm
-        cache-dependency-path: 2022/package-lock.json
-        node-version-file: 2022/.nvmrc
+        cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+        node-version-file: ${{ env.WORKING_DIRECTORY }}/.nvmrc
     - run: npm ci
     - run: npm run test
