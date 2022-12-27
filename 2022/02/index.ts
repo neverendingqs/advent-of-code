@@ -1,11 +1,11 @@
 import readInput from '../lib/readInput';
 
 async function getInput(): Promise<string[][]> {
-  const file = await readInput(__dirname);
+  const file: string = await readInput(__dirname);
 
   return file
     .split('\n')
-    .map(round => round.split(' '));
+    .map((round: string) => round.split(' '));
 }
 
 async function p1(): Promise<string> {
@@ -13,13 +13,13 @@ async function p1(): Promise<string> {
     Rock = 'X',
     Paper = 'Y',
     Scissors = 'Z',
-  };
+  }
 
   enum OpponentMove {
     Rock = 'A',
     Paper = 'B',
     Scissors = 'C',
-  };
+  }
 
   const selectionScore: { [key in MyMove]: number } = {
     [MyMove.Rock]: 1,
@@ -33,11 +33,11 @@ async function p1(): Promise<string> {
     [OpponentMove.Scissors]: MyMove.Scissors,
   };
 
-  const input = await getInput() as Array<[OpponentMove, MyMove]>;
+  const input: Array<[OpponentMove, MyMove]> = await getInput() as Array<[OpponentMove, MyMove]>;
 
   const score: number =  input.reduce(
-    (acc: number, [opponentMove, myMove]) => {
-      let totalScore = acc + selectionScore[myMove];
+    (acc: number, [opponentMove, myMove]: [OpponentMove, MyMove]) => {
+      const totalScore: number = acc + selectionScore[myMove];
 
       if(opponentToYourMove[opponentMove] === myMove) {
         return totalScore + 3;
@@ -64,13 +64,13 @@ async function p2(): Promise<string> {
     Rock = 'A',
     Paper = 'B',
     Scissors = 'C',
-  };
+  }
 
   enum EndState {
     Lose = 'X',
     Tie = 'Y',
     Win = 'Z',
-  };
+  }
 
   const selectionScore: { [key in Move]: number } = {
     [Move.Rock]: 1,
@@ -90,13 +90,13 @@ async function p2(): Promise<string> {
     [Move.Scissors]: Move.Rock,
   };
 
-  const input = await getInput() as Array<[Move, EndState]>;
+  const input: Array<[Move, EndState]> = await getInput() as Array<[Move, EndState]>;
 
-  const solution = input.reduce(
-    (acc, [opponentMove, endState]) => {
+  const solution: number = input.reduce(
+    (acc: number, [opponentMove, endState]: [Move, EndState]) => {
 
       if(endState === EndState.Lose) {
-        const myMove = loseMap[opponentMove];
+        const myMove: Move = loseMap[opponentMove];
         return acc + selectionScore[myMove];
       }
 
@@ -105,7 +105,7 @@ async function p2(): Promise<string> {
       }
 
       if (endState === EndState.Win) {
-        const myMove = winMap[opponentMove];
+        const myMove: Move = winMap[opponentMove];
         return acc + 6 + selectionScore[myMove];
       }
 
@@ -118,12 +118,12 @@ async function p2(): Promise<string> {
 }
 
 export async function solution(): Promise<void> {
-  const [p1a, p2a] = await Promise.all([p1(), p2()]);
-  console.log('p1:', p1a)
+  const [p1a, p2a]: string[] = await Promise.all([p1(), p2()]);
+  console.log('p1:', p1a);
   console.log('p2:', p2a);
 
   /*
    * p1: 10941
    * p2: 13071
    */
-};
+}

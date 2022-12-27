@@ -1,0 +1,28 @@
+name: 2022
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+defaults:
+  run:
+    working-directory: 2022/
+
+env:
+  WORKING_DIRECTORY: 2022/
+
+jobs:
+  ci-2022:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        cache: npm
+        cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+        node-version-file: ${{ env.WORKING_DIRECTORY }}/.nvmrc
+    - run: npm ci
+    - run: npm run test
