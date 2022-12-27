@@ -5,22 +5,27 @@ async function getInput(): Promise<string[]> {
   return file.split('');
 }
 
-async function p1(): Promise<string> {
+async function solve(numUniqueChars: number) {
   const input: string[] = await getInput();
-  for(let i: number = 3; i < input.length; i++) {
-    const substring: string[] = input.slice(i - 3, i + 1);
-    const deduped: Set<string> = new Set(substring);
+  for(let i: number = numUniqueChars; i < input.length; i++) {
+    const substring: string[] = input.slice(i - numUniqueChars, i);
+    const deduped: string[] = [...new Set(substring)];
 
-    if([...deduped].join('') === substring.join('')) {
-      return (i + 1).toString();
+    if(deduped.join('') === substring.join('')) {
+      return i.toString();
     }
   }
 
   throw new Error('Execution should not have reached here!');
+
+}
+
+async function p1(): Promise<string> {
+  return solve(4);
 }
 
 async function p2(): Promise<string> {
-  return '';
+  return solve(14);
 }
 
 export async function solution(): Promise<void> {
@@ -30,6 +35,6 @@ export async function solution(): Promise<void> {
 
   /*
    * p1: 1723
-   * p2:
+   * p2: 3708
    */
 }
