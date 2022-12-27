@@ -4,4 +4,4 @@ export default async function(dir: string) {
   return (await fs.readFile(`${dir}/input.txt`))
     .toString()
     .trim();
-};
+}

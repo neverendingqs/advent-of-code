@@ -1,7 +1,7 @@
 import readInput from '../lib/readInput';
 
 async function getInput(): Promise<any> {
-  const file = await readInput(__dirname);
+  const file: string = await readInput(__dirname);
 }
 
 async function p1(): Promise<string> {
@@ -13,7 +13,7 @@ async function p2(): Promise<string> {
 }
 
 export async function solution(): Promise<void> {
-  const [p1a, p2a] = await Promise.all([p1(), p2()]);
+  const [p1a, p2a]: string[] = await Promise.all([p1(), p2()]);
   console.log('p1:', p1a)
   console.log('p2:', p2a);
 
@@ -21,4 +21,4 @@ export async function solution(): Promise<void> {
    * p1:
    * p2:
    */
-};
+}
