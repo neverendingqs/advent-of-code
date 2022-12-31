@@ -12,12 +12,12 @@ interface FileDetails {
 }
 
 interface Exec {
-  arguments: string | undefined,
+  args: string | undefined,
   command: string,
   output: FileDetails[],
 }
 
-async function getInput(): Promise<any> {
+async function getInput(): Promise<Exec[]> {
   const file: string = await readInput(__dirname);
   const lines: string[] = file.split('\n');
 
@@ -29,7 +29,7 @@ async function getInput(): Promise<any> {
     }
 
     const exec: Exec = {
-      arguments: args,
+      args,
       command,
       output: []
     }
@@ -60,12 +60,48 @@ async function getInput(): Promise<any> {
     execs.push(exec);
   }
 
-  console.log(JSON.stringify(execs, null, 2))
+  return execs;
 }
 
 async function p1(): Promise<string> {
-  await getInput();
-  return '';
+  const execs: Exec[] = await getInput();
+
+  const cwd: string[] = [];
+  const dirSizes: { [key: string]: number } = {};
+
+  for(const { args, command, output } of execs) {
+    if(command === Command.cd) {
+      if(args === undefined) {
+        throw new Error(`Did not expect undefined: ${JSON.stringify({ cwd, dirSizes })}`);
+      }
+      if(args === '..') {
+        cwd.pop();
+      } else {
+        cwd.push(args as string);
+      }
+
+      continue;
+    }
+
+    const bytesToAdd: number = output.reduce(
+      (acc: number, fileDetails: FileDetails) => fileDetails.isDirectory
+        ? acc
+        : acc + fileDetails.size,
+      0
+    );
+
+    for(const currentDir of cwd) {
+      dirSizes[currentDir] = (dirSizes[currentDir] ?? 0) + bytesToAdd;
+    }
+  }
+
+  return Object.values(dirSizes)
+    .filter((bytes: number) => bytes <= 100000)
+    .reduce(
+      (acc: number, bytes: number) => acc + bytes,
+      0
+    )
+    .toString();
 }
 
 async function p2(): Promise<string> {
