@@ -114,7 +114,23 @@ async function p1(): Promise<string> {
 }
 
 async function p2(): Promise<string> {
-  return '';
+  const diskSpaceTotal: number = 70000000;
+  const spaceForUpdate: number = 30000000;
+
+  const dirSizes: DirectorySizes = await getDirectorySizes();
+  const spaceUsedUp: number = dirSizes['/'];
+
+  // 4274331
+  const spaceToFreeUp: number = spaceForUpdate - (diskSpaceTotal - spaceUsedUp);
+
+  return Object.values(dirSizes)
+    .reduce(
+      (dirToDeleteSize: number, currentDirSize: number) => currentDirSize < dirToDeleteSize && currentDirSize > spaceToFreeUp
+        ? currentDirSize
+        : dirToDeleteSize,
+      Number.MAX_SAFE_INTEGER
+    )
+    .toString();
 }
 
 export async function solution(): Promise<void> {
@@ -124,6 +140,6 @@ export async function solution(): Promise<void> {
 
   /*
    * p1: 1915606
-   * p2:
+   * p2: 5025657
    */
 }
