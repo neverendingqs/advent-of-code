@@ -17,6 +17,8 @@ interface Exec {
   output: FileDetails[],
 }
 
+type DirectorySizes = { [key: string]: number };
+
 async function getInput(): Promise<Exec[]> {
   const file: string = await readInput(__dirname);
   const lines: string[] = file.split('\n');
@@ -63,11 +65,11 @@ async function getInput(): Promise<Exec[]> {
   return execs;
 }
 
-async function p1(): Promise<string> {
+async function getDirectorySizes(): Promise<DirectorySizes> {
   const execs: Exec[] = await getInput();
 
   const cwd: string[] = [];
-  const dirSizes: { [key: string]: number } = {};
+  const dirSizes: DirectorySizes = {};
 
   for(const { args, command, output } of execs) {
     if(command === Command.cd) {
@@ -96,6 +98,12 @@ async function p1(): Promise<string> {
     }
   }
 
+  return dirSizes;
+}
+
+async function p1(): Promise<string> {
+  const dirSizes: DirectorySizes = await getDirectorySizes();
+
   return Object.values(dirSizes)
     .filter((bytes: number) => bytes <= 100000)
     .reduce(
@@ -115,7 +123,7 @@ export async function solution(): Promise<void> {
   console.log('p2:', p2a);
 
   /*
-   * p1:
+   * p1: 1915606
    * p2:
    */
 }
