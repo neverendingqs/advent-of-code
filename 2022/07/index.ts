@@ -90,8 +90,9 @@ async function p1(): Promise<string> {
       0
     );
 
-    for(const currentDir of cwd) {
-      dirSizes[currentDir] = (dirSizes[currentDir] ?? 0) + bytesToAdd;
+    for(let i: number = 1; i <= cwd.length; i++) {
+      const dir: string = cwd.slice(0, i).join('/');
+      dirSizes[dir] = (dirSizes[dir] ?? 0) + bytesToAdd;
     }
   }
 
